@@ -1,5 +1,5 @@
 #!/bin/bash
-# should be run as root and only on Ubuntu 20/22, Debian 10/11 (Buster/Bullseye) versions!
+# should be run as root and only on Debian 12 (Bookworm) version! (probably the next version is also possible)
 echo "Welcome to the MediacMS installation!";
 
 if [ `id -u` -ne 0 ]
@@ -22,22 +22,22 @@ done
 
 
 osVersion=$(lsb_release -d)
-if [[ $osVersion == *"Ubuntu 20"* ]] || [[ $osVersion == *"Ubuntu 22"* ]] || [[ $osVersion == *"buster"* ]] || [[ $osVersion == *"bullseye"* ]]; then
+if [[ $osVersion == *"bookworm"* ]]; then
     echo 'Performing system update and dependency installation, this will take a few minutes'
-    apt-get update && apt-get -y upgrade && apt-get install python3-venv python3-dev virtualenv redis-server postgresql nginx git gcc vim unzip imagemagick python3-certbot-nginx certbot wget xz-utils -y
+    apt-get update && apt-get -y upgrade && apt-get install python3-venv python3-dev virtualenv redis-server postgresql nginx git gcc vim unzip imagemagick wget xz-utils ffmpeg lsb-release -y
 else
-    echo "This script is tested for Ubuntu 20/22 versions only, if you want to try MediaCMS on another system you have to perform the manual installation"
+    echo "This script is tested for Debian12 version only, if you want to try MediaCMS on another system you have to perform the manual installation"
     exit
 fi
 
 # install ffmpeg
-echo "Downloading and installing ffmpeg"
-wget -q https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
-mkdir -p tmp
-tar -xf ffmpeg-release-amd64-static.tar.xz --strip-components 1 -C tmp
-cp -v tmp/{ffmpeg,ffprobe,qt-faststart} /usr/local/bin
-rm -rf tmp ffmpeg-release-amd64-static.tar.xz
-echo "ffmpeg installed to /usr/local/bin"
+#echo "Downloading and installing ffmpeg"
+#wget -q https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+#mkdir -p tmp
+#tar -xf ffmpeg-release-amd64-static.tar.xz --strip-components 1 -C tmp
+#cp -v tmp/{ffmpeg,ffprobe,qt-faststart} /usr/local/bin
+#rm -rf tmp ffmpeg-release-amd64-static.tar.xz
+#echo "ffmpeg installed to /usr/local/bin"
 
 read -p "Enter portal URL, or press enter for localhost : " FRONTEND_HOST
 read -p "Enter portal name, or press enter for 'MediaCMS : " PORTAL_NAME
@@ -50,6 +50,10 @@ echo 'Creating database to be used in MediaCMS'
 su -c "psql -c \"CREATE DATABASE mediacms\"" postgres
 su -c "psql -c \"CREATE USER mediacms WITH ENCRYPTED PASSWORD 'mediacms'\"" postgres
 su -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE mediacms TO mediacms\"" postgres
+
+path_pg_hba="/etc/postgresql/15/main/pg_hba.conf"
+sed -i 's/local\s\+all\s\+all\s\+peer/local   all             all                                scram-sha-256/' "$path_pg_hba"
+systemctl restart postgresql
 
 echo 'Creating python virtualenv on /home/mediacms.io'
 
@@ -88,7 +92,7 @@ echo "from users.models import User; User.objects.create_superuser('admin', 'adm
 
 echo "from django.contrib.sites.models import Site; Site.objects.update(name='$FRONTEND_HOST', domain='$FRONTEND_HOST')" | python manage.py shell
 
-chown -R www-data. /home/mediacms.io/
+chown -R www-data /home/mediacms.io/
 cp deploy/local_install/celery_long.service /etc/systemd/system/celery_long.service && systemctl enable celery_long && systemctl start celery_long
 cp deploy/local_install/celery_short.service /etc/systemd/system/celery_short.service && systemctl enable celery_short && systemctl start celery_short
 cp deploy/local_install/celery_beat.service /etc/systemd/system/celery_beat.service && systemctl enable celery_beat &&systemctl start celery_beat
@@ -113,34 +117,34 @@ systemctl start nginx
 
 # attempt to get a valid certificate for specified domain
 
-if [ "$FRONTEND_HOST" != "localhost" ]; then
-    echo 'attempt to get a valid certificate for specified url $FRONTEND_HOST'
-    certbot --nginx -n --agree-tos --register-unsafely-without-email -d $FRONTEND_HOST
-    certbot --nginx -n --agree-tos --register-unsafely-without-email -d $FRONTEND_HOST
+#if [ "$FRONTEND_HOST" != "localhost" ]; then
+#    echo 'attempt to get a valid certificate for specified url $FRONTEND_HOST'
+#    certbot --nginx -n --agree-tos --register-unsafely-without-email -d $FRONTEND_HOST
+#    certbot --nginx -n --agree-tos --register-unsafely-without-email -d $FRONTEND_HOST
     # unfortunately for some reason it needs to be run two times in order to create the entries
     # and directory structure!!!
-    systemctl restart nginx
-else
-    echo "will not call certbot utility to update ssl certificate for url 'localhost', using default ssl certificate"
-fi
+#    systemctl restart nginx
+#else
+#    echo "will not call certbot utility to update ssl certificate for url 'localhost', using default ssl certificate"
+#fi
 
 # Generate individual DH params
-if [ "$FRONTEND_HOST" != "localhost" ]; then
-    # Only generate new DH params when using "real" certificates.
-    openssl dhparam -out /etc/nginx/dhparams/dhparams.pem 4096
-    systemctl restart nginx
-else
-    echo "will not generate new DH params for url 'localhost', using default DH params"
-fi
+#if [ "$FRONTEND_HOST" != "localhost" ]; then
+#    # Only generate new DH params when using "real" certificates.
+#    openssl dhparam -out /etc/nginx/dhparams/dhparams.pem 4096
+#    systemctl restart nginx
+#else
+#    echo "will not generate new DH params for url 'localhost', using default DH params"
+#fi
 
 # Bento4 utility installation, for HLS
 
 cd /home/mediacms.io/mediacms
-wget http://zebulon.bok.net/Bento4/binaries/Bento4-SDK-1-6-0-637.x86_64-unknown-linux.zip
-unzip Bento4-SDK-1-6-0-637.x86_64-unknown-linux.zip
+#wget https://www.bok.net/Bento4/binaries/Bento4-SDK-1-6-0-641.x86_64-unknown-linux.zip
+unzip Bento4-SDK-1-6-0-641.x86_64-unknown-linux.zip
 mkdir /home/mediacms.io/mediacms/media_files/hls
 
 # last, set default owner
-chown -R www-data. /home/mediacms.io/
+chown -R www-data /home/mediacms.io/
 
 echo 'MediaCMS installation completed, open browser on http://'"$FRONTEND_HOST"' and login with user admin and password '"$ADMIN_PASS"''
