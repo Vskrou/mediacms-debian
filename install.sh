@@ -24,7 +24,7 @@ done
 osVersion=$(lsb_release -d)
 if [[ $osVersion == *"bookworm"* ]]; then
     echo 'Performing system update and dependency installation, this will take a few minutes'
-    apt-get update && apt-get -y upgrade && apt-get install python3-venv python3-dev virtualenv redis-server postgresql nginx gcc vim unzip imagemagick wget xz-utils ffmpeg python3-postgresql -y
+    apt-get update && apt-get -y upgrade && apt-get install python3-venv python3-dev virtualenv redis-server postgresql nginx gcc vim unzip imagemagick wget xz-utils ffmpeg -y
 else
     echo "This script is tested for Debian12 version only, if you want to try MediaCMS on another system you have to perform the manual installation"
     exit
@@ -50,10 +50,7 @@ echo 'Creating database to be used in MediaCMS'
 su -c "psql -c \"CREATE DATABASE mediacms\"" postgres
 su -c "psql -c \"CREATE USER mediacms WITH ENCRYPTED PASSWORD 'mediacms'\"" postgres
 su -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE mediacms TO mediacms\"" postgres
-
-#path_pg_hba="/etc/postgresql/15/main/pg_hba.conf"
-#sed -i 's/local\s\+all\s\+all\s\+peer/local   all             all                                scram-sha-256/' "$path_pg_hba"
-systemctl restart postgresql
+su -c "psql -c \"ALTER DATABASE mediacms OWNER TO mediacms\"" postgres
 
 echo 'Creating python virtualenv on /home/mediacms.io'
 
@@ -62,7 +59,6 @@ virtualenv . --python=python3
 source  /home/mediacms.io/bin/activate
 cd mediacms
 pip install -r requirements.txt
-pip install postgres
 
 SECRET_KEY=`python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'`
 
