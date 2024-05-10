@@ -24,7 +24,7 @@ done
 osVersion=$(lsb_release -d)
 if [[ $osVersion == *"bookworm"* ]]; then
     echo 'Performing system update and dependency installation, this will take a few minutes'
-    apt-get update && apt-get -y upgrade && apt-get install python3-venv python3-dev virtualenv redis-server postgresql nginx gcc vim unzip imagemagick wget xz-utils ffmpeg lsb-release -y
+    apt-get update && apt-get -y upgrade && apt-get install python3-venv python3-dev virtualenv redis-server postgresql nginx gcc vim unzip imagemagick wget xz-utils ffmpeg -y
 else
     echo "This script is tested for Debian12 version only, if you want to try MediaCMS on another system you have to perform the manual installation"
     exit
