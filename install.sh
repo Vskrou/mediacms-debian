@@ -142,6 +142,7 @@ systemctl start nginx
 cd /home/mediacms.io/mediacms
 #wget https://www.bok.net/Bento4/binaries/Bento4-SDK-1-6-0-641.x86_64-unknown-linux.zip
 unzip Bento4-SDK-1-6-0-641.x86_64-unknown-linux.zip
+rm Bento4-SDK-1-6-0-641.x86_64-unknown-linux.zip
 mkdir /home/mediacms.io/mediacms/media_files/hls
 
 # last, set default owner
