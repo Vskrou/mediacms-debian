@@ -77,6 +77,8 @@ echo "SSL_FRONTEND_HOST = FRONTEND_HOST.replace('http', 'https')" >> cms/local_s
 echo 'SECRET_KEY='\'"$SECRET_KEY"\' >> cms/local_settings.py
 echo "LOCAL_INSTALL = True" >> cms/local_settings.py
 
+echo "vm.overcommit_memory=1" >> /etc/sysctl.conf #redis bug fix
+
 mkdir logs
 mkdir pids
 python manage.py migrate
