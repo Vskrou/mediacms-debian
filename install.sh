@@ -78,6 +78,7 @@ echo 'SECRET_KEY='\'"$SECRET_KEY"\' >> cms/local_settings.py
 echo "LOCAL_INSTALL = True" >> cms/local_settings.py
 
 echo "vm.overcommit_memory=1" >> /etc/sysctl.conf #redis bug fix
+sysctl -p /etc/sysctl.conf
 
 mkdir logs
 mkdir pids
