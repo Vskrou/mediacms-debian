@@ -44,7 +44,7 @@ VIDEO_CRFS = {
     "h264_baseline": 23,
     "h264": 23,
     "h265": 28,
-    "vp9": 32,
+    "vp9": 31,
 }
 
 # video rates for 25 or 60 fps input, for different codecs, in kbps
