@@ -79,6 +79,7 @@ echo "LOCAL_INSTALL = True" >> cms/local_settings.py
 
 echo "vm.overcommit_memory=1" >> /etc/sysctl.conf #redis bug fix
 sysctl -p /etc/sysctl.conf
+systemctl restart systemd-sysctl
 
 mkdir logs
 mkdir pids
