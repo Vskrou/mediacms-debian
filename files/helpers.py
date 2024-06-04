@@ -661,9 +661,9 @@ def get_base_ffmpeg_command(
         cmd.extend(
             [
                 "-g",
-                str(keyframe_distance),
-                "-keyint_min",
-                str(keyframe_distance),
+                str(240),
+                #"-keyint_min",
+                #str(keyframe_distance),
                 "-maxrate",
                 str(int(int(target_rate) * MAX_RATE_MULTIPLIER)) + "k",
                 "-minrate",
