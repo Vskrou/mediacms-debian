@@ -672,7 +672,7 @@ def get_base_ffmpeg_command(
                 str(int(int(target_rate) * BUF_SIZE_MULTIPLIER)) + "k",
                 "-speed",
                 speed,
-                #            '-deadline', 'realtime',
+                            '-deadline', 'good',
             ]
         )
 
