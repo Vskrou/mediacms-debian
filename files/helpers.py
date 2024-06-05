@@ -15,7 +15,7 @@ from django.conf import settings
 
 CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-CRF_ENCODING_NUM_SECONDS = 2  # 0 * 60 # videos with greater duration will get
+CRF_ENCODING_NUM_SECONDS = 36000  # 0 * 60 # videos with greater duration will get
 # CRF encoding and not two-pass
 # Encoding individual chunks may yield quality variations if you use a
 # too low bitrate, so if you go for the chunk-based variant
@@ -92,7 +92,7 @@ AUDIO_ENCODERS = {"h264": "aac", "h265": "aac", "vp9": "libopus"}
 
 AUDIO_BITRATES = {"h264": 192, "h265": 192, "vp9": 128}
 
-EXTENSIONS = {"h264": "mp4", "h265": "mp4", "vp9": "mp4"}
+EXTENSIONS = {"h264": "mp4", "h265": "mp4", "vp9": "webm"}
 
 VIDEO_PROFILES = {"h264": "main", "h265": "main"}
 
@@ -582,6 +582,8 @@ def get_base_ffmpeg_command(
                 # stereo audio only, see https://trac.ffmpeg.org/ticket/5718
                 "-ac",
                 "2",
+                "-compression_level",
+                "10",
             ]
         )
 
