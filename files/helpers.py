@@ -582,8 +582,6 @@ def get_base_ffmpeg_command(
                 # stereo audio only, see https://trac.ffmpeg.org/ticket/5718
                 "-ac",
                 "2",
-                "-compression_level",
-                "10",
             ]
         )
 
@@ -674,7 +672,7 @@ def get_base_ffmpeg_command(
                 str(int(int(target_rate) * BUF_SIZE_MULTIPLIER)) + "k",
                 "-speed",
                 speed,
-                            '-deadline', 'good',
+                            '-deadline', 'realtime',
             ]
         )
 
